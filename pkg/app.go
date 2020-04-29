@@ -1,4 +1,4 @@
-package service
+package pkg
 
 import (
 	"github.com/gin-gonic/gin"
@@ -31,11 +31,11 @@ func NewApp() *App {
 		return service
 	}
 
-	return &App{R:Router{}, gin: gin.Default()}
+	return &App{R: Router{}, gin: gin.Default()}
 }
 
 type App struct {
-	R Router
+	R   Router
 	gin *gin.Engine
 }
 
