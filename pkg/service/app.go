@@ -24,28 +24,28 @@ func RegisterService(endpoint Endpoint, requestFunc EncodeRequestFunc, responseF
 	}
 }
 
-var service *app
+var service *App
 
-func NewApp(router Router) *app {
+func NewApp() *App {
 	if service != nil {
 		return service
 	}
 
-	return &app{r:router, gin: gin.Default()}
+	return &App{R:Router{}, gin: gin.Default()}
 }
 
-type app struct {
-	r Router
+type App struct {
+	R Router
 	gin *gin.Engine
 }
 
-func (app *app)registerHandler()  {
-	for path, r := range app.r {
+func (app *App)registerHandler()  {
+	for path, r := range app.R {
 		app.gin.Handle(r.Method, path, r.handler)
 	}
 }
 
-func (app *app) Run(addr... string) {
+func (app *App) Run(addr... string) {
 	app.registerHandler()
-	app.gin.Run(addr...)
+	_ = app.gin.Run(addr...)
 }
