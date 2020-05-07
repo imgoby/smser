@@ -2,14 +2,14 @@ package api
 
 import (
 	"cn.sockstack/smser/api/variable"
-	"cn.sockstack/smser/pkg"
+	"cn.sockstack/smser/src"
 )
 
-func V1(app *pkg.App) {
+func V1(app *src.App) {
 	app.R.Route(
 		"GET",
 		"/test",
-		pkg.RegisterService(
+		src.RegisterService(
 			variable.AddCategoryEndpoint(variable.CategoryService{}),
 			variable.CreateAddParams(),
 			variable.CreateAddResult(),

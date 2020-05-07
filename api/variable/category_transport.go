@@ -1,11 +1,11 @@
 package variable
 
 import (
-	"cn.sockstack/smser/pkg"
+	"cn.sockstack/smser/src"
 	"github.com/gin-gonic/gin"
 )
 
-func CreateAddParams() pkg.EncodeRequestFunc {
+func CreateAddParams() src.EncodeRequestFunc {
 	return func(ctx *gin.Context) (request interface{}, err error) {
 		params := AddParams{}
 		err = ctx.ShouldBind(&params)
@@ -17,7 +17,7 @@ func CreateAddParams() pkg.EncodeRequestFunc {
 	}
 }
 
-func CreateAddResult() pkg.DecodeResponseFunc {
+func CreateAddResult() src.DecodeResponseFunc {
 	return func(ctx *gin.Context, response interface{}, err error) {
 		if err != nil {
 			ctx.JSON(500, err)

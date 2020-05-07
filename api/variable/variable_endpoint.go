@@ -1,7 +1,7 @@
 package variable
 
 import (
-	"cn.sockstack/smser/pkg"
+	"cn.sockstack/smser/src"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +15,7 @@ type AddResult struct {
 	Status bool
 }
 
-func AddVariableEndpoint(service VariableService) pkg.Endpoint {
+func AddVariableEndpoint(service VariableService) src.Endpoint {
 	return func(ctx *gin.Context, request interface{}) (response interface{}, err error) {
 
 		return &AddResult{}, nil
