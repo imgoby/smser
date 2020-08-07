@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+var (
+	dingtalk = model.GetMgoDB()
+)
+
 type DingTalkService struct {
 	AccessToken string
 	Secret string
@@ -39,12 +43,22 @@ func (this *DingTalkService) Send ()  {
 
 //StoreAccessTokenAndSecret 持久化 DingTalk 配置
 func (this *DingTalkService) StoreAccessTokenAndSecret (entry entry.DingTalkEntry) error {
-	return model.GetMgoDB().C(entry.TableName()).Insert(entry)
+	collection := dingtalk.C(entry.TableName())
+	count, err := collection.Find(nil).Count()
+	if err != nil {
+		return err
+	}
+
+	if count > 0  {
+		return nil
+	}
+
+	return collection.Insert(entry)
 }
 
 func (this *DingTalkService) GetAccessTokenAndSecret() (entry.DingTalkEntry, error) {
 	entry := entry.DingTalkEntry{}
-	err := model.GetMgoDB().C(entry.TableName()).Find(nil).One(&entry)
+	err := dingtalk.C(entry.TableName()).Find(nil).One(&entry)
 
 	return entry, err
 }
