@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	internal.NewSmser().Route(api.T, api.OpenApiV1).Use(middlewares.RequestLog()).Run()
+	internal.NewSmser().Route(api.R).Use(middlewares.RequestLog()).Run()
 }

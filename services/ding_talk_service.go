@@ -1,6 +1,8 @@
 package services
 
 import (
+	"cn.sockstack/smser/entry"
+	"cn.sockstack/smser/internal/model"
 	"fmt"
 	"github.com/sockstack/dtrobot"
 	"github.com/sockstack/dtrobot/message"
@@ -13,10 +15,10 @@ type DingTalkService struct {
 }
 
 func NewDingTalkService() *DingTalkService {
-	return &DingTalkService{
-		AccessToken: "79a01c796146d462b59bd6befc8d43e2c87dc446218d8757acca10d752c4fa03",
-		Secret: "SEC5a7d0e259fd08f1f19573101617713dcb19e5733b69f158969beaa723648410d",
-	}
+	//AccessToken: "79a01c796146d462b59bd6befc8d43e2c87dc446218d8757acca10d752c4fa03",
+	//Secret: "SEC5a7d0e259fd08f1f19573101617713dcb19e5733b69f158969beaa723648410d",
+
+	return &DingTalkService{}
 }
 
 func (this *DingTalkService) Send ()  {
@@ -33,4 +35,16 @@ func (this *DingTalkService) Send ()  {
 	}
 
 	fmt.Println(send)
+}
+
+//StoreAccessTokenAndSecret 持久化 DingTalk 配置
+func (this *DingTalkService) StoreAccessTokenAndSecret (entry entry.DingTalkEntry) error {
+	return model.GetMgoDB().C(entry.TableName()).Insert(entry)
+}
+
+func (this *DingTalkService) GetAccessTokenAndSecret() (entry.DingTalkEntry, error) {
+	entry := entry.DingTalkEntry{}
+	err := model.GetMgoDB().C(entry.TableName()).Find(nil).One(&entry)
+
+	return entry, err
 }
