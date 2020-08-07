@@ -13,6 +13,8 @@ var (
 
 type Smser struct {
 	r *gin.Engine
+	middlewares []gin.HandlerFunc
+	routes []RouteHandleFunc
 }
 
 func NewSmser() *Smser {
@@ -22,6 +24,11 @@ func NewSmser() *Smser {
 }
 
 func (this *Smser) Run()  {
+	this.r.Use(this.middlewares...)
+	for _, o := range this.routes {
+		o(this.r)
+	}
+
 	s := &http.Server{
 		Addr:           fmt.Sprintf("%s:%s", Cfg.Host, Cfg.Port),
 		Handler:        this.r,
@@ -35,14 +42,11 @@ func (this *Smser) Run()  {
 type RouteHandleFunc func(r *gin.Engine)
 
 func (this *Smser) Route(routes ...RouteHandleFunc) *Smser {
-	for _, handle := range routes{
-		handle(this.r)
-	}
-
+	this.routes = routes
 	return this
 }
 
 func (this *Smser) Use(middlewares ...gin.HandlerFunc) *Smser {
-	this.r.Use(middlewares...)
+	this.middlewares = middlewares
 	return this
 }
