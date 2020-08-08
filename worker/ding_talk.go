@@ -2,6 +2,7 @@ package worker
 
 import (
 	"cn.sockstack/smser/entry"
+	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/services"
 	"cn.sockstack/smser/tools"
 	"errors"
@@ -25,6 +26,11 @@ func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
 		return errors.New("access_token 为空")
 	}
 
-	service.SetAccessTokenAndSecret(dingTalkEntry.AccessToken, dingTalkEntry.Secret).SetTextMessage(*messageEntry).Send()
+	err = service.SetAccessTokenAndSecret(dingTalkEntry.AccessToken, dingTalkEntry.Secret).SetTextMessage(*messageEntry).Send()
+	if err != nil {
+		queueEntry.Status = entry.RetryStatus
+		model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
+		return err
+	}
 	return nil
 }

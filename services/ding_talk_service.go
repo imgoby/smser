@@ -25,7 +25,7 @@ func NewDingTalkService() *DingTalkService {
 	return &DingTalkService{}
 }
 
-func (this *DingTalkService) Send ()  {
+func (this *DingTalkService) Send () error {
 	robot, err := dtrobot.NewRobot(this.AccessToken, dtrobot.WithSecret(this.Secret))
 	if err != nil {
 		tools.MessageLogger(nil).Error(err)
@@ -35,10 +35,12 @@ func (this *DingTalkService) Send ()  {
 
 	if err != nil {
 		tools.MessageLogger(nil).Error(err)
+		return err
 	}
 
 	message, _ := json.Marshal(this.message)
 	tools.MessageLogger(map[string]interface{}{"response": response}).Info(string(message))
+	return nil
 }
 
 //StoreAccessTokenAndSecret 持久化 DingTalk 配置
