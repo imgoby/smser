@@ -18,6 +18,9 @@ func R(r *gin.Engine)  {
 func OpenApiV1(r *gin.Engine)  {
 	g := r.Group("/api/open/v1")
 	g.POST("/send", openapiv1.Send)
+
+	dingtalk := g.Group("/dingtalk")
+	dingtalk.POST("/text", openapiv1.DingTalkTextMessageSend)
 }
 
 func BackendApiV1(r *gin.Engine)  {

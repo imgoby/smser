@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/sockstack/dtrobot"
 	"github.com/sockstack/dtrobot/message"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -16,12 +17,10 @@ var (
 type DingTalkService struct {
 	AccessToken string
 	Secret string
+	message message.Message
 }
 
 func NewDingTalkService() *DingTalkService {
-	//AccessToken: "79a01c796146d462b59bd6befc8d43e2c87dc446218d8757acca10d752c4fa03",
-	//Secret: "SEC5a7d0e259fd08f1f19573101617713dcb19e5733b69f158969beaa723648410d",
-
 	return &DingTalkService{}
 }
 
@@ -31,8 +30,7 @@ func (this *DingTalkService) Send ()  {
 		panic(err)
 	}
 
-	textMessage := message.NewTextMessage(message.WithText(message.Text{Content: time.Now().String()}))
-	send, err := robot.Send(textMessage)
+	send, err := robot.Send(this.message)
 
 	if err != nil {
 		panic(err)
@@ -61,4 +59,51 @@ func (this *DingTalkService) GetAccessTokenAndSecret() (entry.DingTalkEntry, err
 	err := dingtalk.C(entry.TableName()).Find(nil).One(&entry)
 
 	return entry, err
+}
+
+func (this *DingTalkService) StoreDingTalkTextMessage (messageEntry entry.DingTalkTextMessageEntry, callback func(entry entry.QueueEntry)) error {
+	payload, err := messageEntry.Encode()
+	if err != nil {
+		return err
+	}
+	now := time.Now().Unix()
+	queueEntry := entry.NewQueueEntry()
+	queueEntry.ID = bson.NewObjectId()
+	queueEntry.Type = entry.DingTalkTextMessage
+	queueEntry.RetryNum = entry.RetryNum
+	queueEntry.CreatedAt = now
+	queueEntry.UpdatedAt = now
+	queueEntry.Status = entry.PrepareStatus
+	queueEntry.Payload = payload
+
+	err = dingtalk.C(queueEntry.TableName()).Insert(queueEntry)
+	if err != nil {
+		return err
+	}
+
+	if callback != nil {
+		callback(*queueEntry)
+	}
+
+	return nil
+}
+
+func (this *DingTalkService) SetAccessTokenAndSecret(accessToken, secret string) *DingTalkService {
+	this.AccessToken = accessToken
+	this.Secret = secret
+
+	return this
+}
+
+func (this *DingTalkService) SetTextMessage(messageEntry entry.DingTalkTextMessageEntry) *DingTalkService {
+	mobiles := message.Mobiles{
+		AtMobiles: messageEntry.AtMobiles,
+	}
+	if len(messageEntry.AtMobiles) != 0 {
+		mobiles.IsAtAll = true
+	}
+
+	this.message = message.NewTextMessage(message.WithText(message.Text{Content: messageEntry.Message}), message.WithMobiles(mobiles))
+
+	return this
 }

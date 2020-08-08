@@ -50,3 +50,7 @@ func (this *Smser) Use(middlewares ...gin.HandlerFunc) *Smser {
 	this.middlewares = middlewares
 	return this
 }
+
+func init() {
+	registerRequestTranslator()
+}

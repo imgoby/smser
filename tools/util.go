@@ -9,3 +9,6 @@ func RequestLogger() *logrus.Entry {
 	return internal.NewLog(internal.WithCollection("request_log"))
 }
 
+func WorkerLogger() *logrus.Entry {
+	return internal.NewLog(internal.WithCollection("worker_log"))
+}
