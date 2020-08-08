@@ -52,8 +52,8 @@ func (this *worker) GetNum() int {
 }
 
 func (this *worker) Run ()  {
-	this.start()
 	go func() {
+		this.start()
 		for true {
 			<-this.rch
 			this.restart()
