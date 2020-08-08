@@ -4,6 +4,7 @@ import (
 	"cn.sockstack/smser/entry"
 	"cn.sockstack/smser/internal"
 	"cn.sockstack/smser/internal/model"
+	"cn.sockstack/smser/tools"
 	"encoding/json"
 	"fmt"
 	"github.com/nsqio/go-nsq"
@@ -18,15 +19,13 @@ func (this *QueueService) Push(queueEntry entry.QueueEntry) {
 		config := nsq.NewConfig()
 		p, err := nsq.NewProducer(fmt.Sprintf("%s:%s", internal.Cfg.NsqHost, internal.Cfg.NsqPort), config)
 		if err != nil {
-			queueEntry.Status = entry.RetryStatus
-			model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
+			tools.Logger().Error(err)
 			return
 		}
 
 		encode, err := this.Encode(queueEntry)
 		if err != nil {
-			queueEntry.Status = entry.RetryStatus
-			model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
+			tools.Logger().Error(err)
 			return
 		}
 
