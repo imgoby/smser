@@ -8,6 +8,6 @@ import (
 func RequestLog() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
-		tools.RequestLogger().Info(c.Request.URL)
+		tools.RequestLogger(c.Request.URL)
 	}
 }

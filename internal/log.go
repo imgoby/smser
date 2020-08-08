@@ -10,8 +10,7 @@ var (
 	log = logrus.New()
 )
 
-func NewLog(opts ...LogOptionHandle) *logrus.Entry {
-
+func NewLog(opts ...LogOptionHandle) *logrus.Logger {
 	option := logOption{
 		Db:         Cfg.MongodbName,
 		Collection: Cfg.MongodbLogCollection,
@@ -47,7 +46,7 @@ func NewLog(opts ...LogOptionHandle) *logrus.Entry {
 	for key, value := range option.Extra {
 		fields[key] = value
 	}
-	entry := log.WithFields(fields)
+	log.WithFields(fields)
 
-	return entry
+	return log
 }

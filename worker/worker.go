@@ -18,44 +18,80 @@ var Worker = newWorker()
 type worker struct {
 	q chan bool
 	m sync.Mutex
+	rwm sync.RWMutex
 	w sync.WaitGroup
-	Num int
+	num int
+	rst bool
 }
 
 func newWorker() *worker {
 	return &worker{
-		Num: internal.Cfg.WorkerNum,
+		num: internal.Cfg.WorkerNum,
 		q: make(chan bool, 1),
 		m: sync.Mutex{},
 		w: sync.WaitGroup{},
+		rwm: sync.RWMutex{},
 	}
 }
 
-func (this *worker) Start ()  {
-	tools.WorkerLogger().Info("worker starting")
+func (this *worker) SetRst (b bool)  {
+	this.rwm.Lock()
+	defer this.rwm.Unlock()
+	this.rst = b
+}
+
+func (this *worker) getRst () bool {
+	this.rwm.RLock()
+	defer this.rwm.RUnlock()
+	return this.rst
+}
+
+func (this *worker) SetNum (num int) {
+	this.rwm.Lock()
+	defer this.rwm.Unlock()
+	this.num = num
+}
+
+func (this *worker) GetNum() int {
+	this.rwm.RLock()
+	defer this.rwm.RUnlock()
+	return this.num
+}
+
+func (this *worker) Run ()  {
+	this.start()
+	go func() {
+		for true {
+			if this.getRst() {
+				this.restart()
+			}
+			time.Sleep(time.Millisecond * 50)
+		}
+	}()
+}
+
+func (this *worker) start ()  {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	go func() {
 		defer func() {
-			tools.WorkerLogger().Info("worker exited")
 			cancelFunc()
 		}()
-		for i := 1; i <= this.Num; i++ {
-			fmt.Println(i)
+		for i := 1; i <= this.num; i++ {
 			go this.consumer(ctx)
 		}
 		<-this.q
 	}()
-	tools.WorkerLogger().Info("worker started")
 }
 
-func (this *worker) Restart ()  {
+func (this *worker) restart ()  {
+	tools.WorkerLogger("worker restarting", nil)
 	this.m.Lock()
 	defer this.m.Unlock()
-	tools.WorkerLogger().Info("worker restarting")
 	this.q <- true
 	this.w.Wait()
-	tools.WorkerLogger().Info("worker restarted")
-	this.Start()
+	this.start()
+	this.rst = false
+	tools.WorkerLogger("worker restarted", nil)
 }
 
 func (this *worker) consumer (ctx context.Context) {
@@ -71,7 +107,7 @@ func (this *worker) consumer (ctx context.Context) {
 		consumer.Stop()
 	}()
 	if err != nil {
-		tools.WorkerLogger().Error(err)
+		tools.WorkerLogger(err, nil)
 		return
 	}
 
@@ -83,7 +119,7 @@ func (this *worker) consumer (ctx context.Context) {
 	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
 	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", internal.Cfg.NsqConsumerHost, internal.Cfg.NsqConsumerPort))
 	if err != nil {
-		tools.WorkerLogger().Error(err)
+		tools.WorkerLogger(err, nil)
 	}
 	for true {
 		select {

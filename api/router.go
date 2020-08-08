@@ -28,4 +28,8 @@ func BackendApiV1(r *gin.Engine)  {
 	dingtalk := g.Group("/dingtalk")
 	dingtalk.POST("/", v1.StoreDingTalkSecretAndAccessToken)
 	dingtalk.GET("/", v1.GetTalkSecretAndAccessToken)
+	setting := g.Group("/setting")
+	worker := setting.Group("/worker")
+	worker.POST("/num", v1.SetWorkerNum)
+	worker.GET("/num", v1.GetWorkerNum)
 }
