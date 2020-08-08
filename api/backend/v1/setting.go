@@ -18,7 +18,6 @@ func SetWorkerNum(c *gin.Context)  {
 	}
 
 	worker.Worker.SetNum(workerEntry.Number)
-	worker.Worker.SetRst(true)
 
 	c.JSON(http.StatusOK, entry.NewOpenApiSuccessResponse(entry.GetOpenApiResponseMessageByCode(entry.OpenApiSuccessCode), nil))
 }

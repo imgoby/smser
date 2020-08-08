@@ -22,6 +22,8 @@ type worker struct {
 	w sync.WaitGroup
 	num int
 	rst bool
+	rch chan bool
+	ctx *context.Context
 }
 
 func newWorker() *worker {
@@ -31,25 +33,16 @@ func newWorker() *worker {
 		m: sync.Mutex{},
 		w: sync.WaitGroup{},
 		rwm: sync.RWMutex{},
+		rch: make(chan bool, 1),
 	}
-}
-
-func (this *worker) SetRst (b bool)  {
-	this.rwm.Lock()
-	defer this.rwm.Unlock()
-	this.rst = b
-}
-
-func (this *worker) getRst () bool {
-	this.rwm.RLock()
-	defer this.rwm.RUnlock()
-	return this.rst
 }
 
 func (this *worker) SetNum (num int) {
 	this.rwm.Lock()
 	defer this.rwm.Unlock()
 	this.num = num
+
+	this.rch <- true
 }
 
 func (this *worker) GetNum() int {
@@ -62,10 +55,8 @@ func (this *worker) Run ()  {
 	this.start()
 	go func() {
 		for true {
-			if this.getRst() {
-				this.restart()
-			}
-			time.Sleep(time.Millisecond * 50)
+			<-this.rch
+			this.restart()
 		}
 	}()
 }
@@ -73,13 +64,20 @@ func (this *worker) Run ()  {
 func (this *worker) start ()  {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	go func() {
-		defer func() {
-			cancelFunc()
-		}()
 		for i := 1; i <= this.num; i++ {
 			go this.consumer(ctx)
 		}
-		<-this.q
+		for true {
+			select {
+			case <-this.q:
+				cancelFunc()
+				break
+			case <-ctx.Done():
+				return
+			default:
+				time.Sleep(time.Millisecond * 50)
+			}
+		}
 	}()
 }
 
@@ -87,17 +85,16 @@ func (this *worker) restart ()  {
 	tools.WorkerLogger("worker restarting", nil)
 	this.m.Lock()
 	defer this.m.Unlock()
+
 	this.q <- true
 	this.w.Wait()
 	this.start()
-	this.rst = false
 	tools.WorkerLogger("worker restarted", nil)
 }
 
 func (this *worker) consumer (ctx context.Context) {
 	this.w.Add(1)
 
-	var flag bool
 	config := nsq.NewConfig()
 	consumer, err := nsq.NewConsumer(internal.Cfg.NsqMessageTopic, "message_channel", config)
 	// Gracefully stop the consumer.
@@ -124,14 +121,9 @@ func (this *worker) consumer (ctx context.Context) {
 	for true {
 		select {
 		case <-ctx.Done():
-			flag = true
-			break
+			return
 		default:
 			time.Sleep(time.Millisecond * 50)
-		}
-
-		if flag {
-			break
 		}
 	}
 
