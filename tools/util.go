@@ -12,3 +12,7 @@ func RequestLogger() *logrus.Entry {
 func WorkerLogger() *logrus.Entry {
 	return internal.NewLog(internal.WithCollection("worker_log"))
 }
+
+func MessageLogger() *logrus.Entry {
+	return internal.NewLog(internal.WithCollection("message_send_log"))
+}

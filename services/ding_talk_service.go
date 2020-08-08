@@ -3,7 +3,7 @@ package services
 import (
 	"cn.sockstack/smser/entry"
 	"cn.sockstack/smser/internal/model"
-	"fmt"
+	"cn.sockstack/smser/tools"
 	"github.com/sockstack/dtrobot"
 	"github.com/sockstack/dtrobot/message"
 	"gopkg.in/mgo.v2/bson"
@@ -27,16 +27,16 @@ func NewDingTalkService() *DingTalkService {
 func (this *DingTalkService) Send ()  {
 	robot, err := dtrobot.NewRobot(this.AccessToken, dtrobot.WithSecret(this.Secret))
 	if err != nil {
-		panic(err)
+		tools.MessageLogger().Error(err)
 	}
 
-	send, err := robot.Send(this.message)
+	response, err := robot.Send(this.message)
 
 	if err != nil {
-		panic(err)
+		tools.MessageLogger().Error(err)
 	}
 
-	fmt.Println(send)
+	tools.MessageLogger().Info(response)
 }
 
 //StoreAccessTokenAndSecret 持久化 DingTalk 配置
