@@ -52,13 +52,11 @@ func (this *worker) GetNum() int {
 }
 
 func (this *worker) Run ()  {
-	go func() {
-		this.start()
-		for true {
-			<-this.rch
-			this.restart()
-		}
-	}()
+	this.start()
+	for true {
+		<-this.rch
+		this.restart()
+	}
 }
 
 func (this *worker) start ()  {

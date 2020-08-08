@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	worker.Consumer()
+	worker.Worker.Run()
 }
