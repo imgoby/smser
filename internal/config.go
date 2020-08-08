@@ -7,6 +7,7 @@ import (
 type Config struct {
 	Mode string `ini:"app_mode"`
 	AppName string `ini:"app_name"`
+	WorkerNum int `ini:"worker_num"`
 	Http
 	DingTalk
 	MongoDB

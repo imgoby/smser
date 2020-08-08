@@ -6,16 +6,68 @@ import (
 	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/services"
 	"cn.sockstack/smser/tools"
+	"context"
 	"fmt"
 	"github.com/nsqio/go-nsq"
+	"sync"
 	"time"
 )
 
-func Consumer() {
+var Worker = newWorker()
+
+type worker struct {
+	q chan bool
+	m sync.Mutex
+	w sync.WaitGroup
+	Num int
+}
+
+func newWorker() *worker {
+	return &worker{
+		Num: internal.Cfg.WorkerNum,
+		q: make(chan bool, 1),
+		m: sync.Mutex{},
+		w: sync.WaitGroup{},
+	}
+}
+
+func (this *worker) Start ()  {
+	tools.WorkerLogger().Info("worker starting")
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	go func() {
+		defer func() {
+			tools.WorkerLogger().Info("worker exited")
+			cancelFunc()
+		}()
+		for i := 1; i <= this.Num; i++ {
+			fmt.Println(i)
+			go this.consumer(ctx)
+		}
+		<-this.q
+	}()
+	tools.WorkerLogger().Info("worker started")
+}
+
+func (this *worker) Restart ()  {
+	tools.WorkerLogger().Info("worker restarting")
+	this.q <- true
+	this.w.Wait()
+	tools.WorkerLogger().Info("worker restarted")
+	this.Start()
+}
+
+func (this *worker) consumer (ctx context.Context) {
+	this.w.Add(1)
+
+	var flag bool
 	config := nsq.NewConfig()
 	consumer, err := nsq.NewConsumer(internal.Cfg.NsqMessageTopic, "message_channel", config)
 	// Gracefully stop the consumer.
-	defer consumer.Stop()
+	defer func() {
+		fmt.Println("进程推出")
+		this.w.Done()
+		consumer.Stop()
+	}()
 	if err != nil {
 		tools.WorkerLogger().Error(err)
 		return
@@ -23,7 +75,7 @@ func Consumer() {
 
 	// Set the Handler for messages received by this Consumer. Can be called multiple times.
 	// See also AddConcurrentHandlers.
-	consumer.AddHandler(newWorker())
+	consumer.AddHandler(newHandle())
 
 	// Use nsqlookupd to discover nsqd instances.
 	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
@@ -32,18 +84,28 @@ func Consumer() {
 		tools.WorkerLogger().Error(err)
 	}
 	for true {
-		time.Sleep(time.Millisecond * 50)
+		select {
+		case <-ctx.Done():
+			flag = true
+			break
+		default:
+			time.Sleep(time.Millisecond * 50)
+		}
+
+		if flag {
+			break
+		}
 	}
 
 }
-type Worker struct {}
+type handle struct {}
 
-func newWorker() *Worker {
-	return &Worker{}
+func newHandle() *handle {
+	return &handle{}
 }
 
 // HandleMessage implements the Handler interface.
-func (h *Worker) HandleMessage(m *nsq.Message) error {
+func (h *handle) HandleMessage(m *nsq.Message) error {
 	if len(m.Body) == 0 {
 		// Returning nil will automatically send a FIN command to NSQ to mark the message as processed.
 		return nil
