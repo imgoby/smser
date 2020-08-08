@@ -7,7 +7,7 @@ type logOption struct {
 	Password string
 	Host string
 	Port string
-	Extra map[string]string
+	Extra map[string]interface{}
 }
 
 type LogOptionHandle func(opt *logOption)
@@ -24,7 +24,7 @@ func WithCollection(c string) LogOptionHandle {
 	}
 }
 
-func WithExtra(extra map[string]string) LogOptionHandle {
+func WithExtra(extra map[string]interface{}) LogOptionHandle {
 	return func(opt *logOption) {
 		opt.Extra = extra
 	}

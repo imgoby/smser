@@ -1,7 +1,8 @@
-package internal
+package worker
 
 import (
 	"cn.sockstack/smser/entry"
+	"cn.sockstack/smser/internal"
 	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/services"
 	"cn.sockstack/smser/tools"
@@ -12,7 +13,7 @@ import (
 
 func Consumer() {
 	config := nsq.NewConfig()
-	consumer, err := nsq.NewConsumer(Cfg.NsqMessageTopic, "message_channel", config)
+	consumer, err := nsq.NewConsumer(internal.Cfg.NsqMessageTopic, "message_channel", config)
 	// Gracefully stop the consumer.
 	defer consumer.Stop()
 	if err != nil {
@@ -26,7 +27,7 @@ func Consumer() {
 
 	// Use nsqlookupd to discover nsqd instances.
 	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
-	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", Cfg.NsqConsumerHost, Cfg.NsqConsumerPort))
+	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", internal.Cfg.NsqConsumerHost, internal.Cfg.NsqConsumerPort))
 	if err != nil {
 		tools.WorkerLogger().Error(err)
 	}
@@ -55,7 +56,6 @@ func (h *Worker) HandleMessage(m *nsq.Message) error {
 }
 
 func processMessage(body []byte) error {
-	service := services.NewDingTalkService()
 	queueService := services.NewQueueService()
 	queueEntry, err := queueService.Decode(body)
 	if err != nil {
@@ -64,11 +64,12 @@ func processMessage(body []byte) error {
 		return err
 	}
 
-	messageEntry := entry.NewDingTalkTextMessageEntry()
-	messageEntry.Decode([]byte(queueEntry.Payload))
-	fmt.Println(string(body))
-	fmt.Println(queueEntry)
+	switch queueEntry.Type {
+	case entry.DingTalkTextMessage:
+		err = SendDingTalkTextMessage(queueEntry)
+		break
+	default:
+	}
 
-	service.SetAccessTokenAndSecret(Cfg.AccessToken, Cfg.Secret).SetTextMessage(*messageEntry).Send()
-	return nil
+	return err
 }

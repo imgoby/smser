@@ -1,9 +1,9 @@
 package main
 
 import (
-	"cn.sockstack/smser/internal"
+	"cn.sockstack/smser/worker"
 )
 
 func main() {
-	internal.Consumer()
+	worker.Consumer()
 }

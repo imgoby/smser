@@ -4,6 +4,7 @@ import (
 	"cn.sockstack/smser/entry"
 	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/tools"
+	"encoding/json"
 	"github.com/sockstack/dtrobot"
 	"github.com/sockstack/dtrobot/message"
 	"gopkg.in/mgo.v2/bson"
@@ -27,16 +28,17 @@ func NewDingTalkService() *DingTalkService {
 func (this *DingTalkService) Send ()  {
 	robot, err := dtrobot.NewRobot(this.AccessToken, dtrobot.WithSecret(this.Secret))
 	if err != nil {
-		tools.MessageLogger().Error(err)
+		tools.MessageLogger(nil).Error(err)
 	}
 
 	response, err := robot.Send(this.message)
 
 	if err != nil {
-		tools.MessageLogger().Error(err)
+		tools.MessageLogger(nil).Error(err)
 	}
 
-	tools.MessageLogger().Info(response)
+	message, _ := json.Marshal(this.message)
+	tools.MessageLogger(map[string]interface{}{"response": response}).Info(string(message))
 }
 
 //StoreAccessTokenAndSecret 持久化 DingTalk 配置
