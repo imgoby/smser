@@ -1,8 +1,7 @@
-package worker
+package internal
 
 import (
 	"cn.sockstack/smser/entry"
-	"cn.sockstack/smser/internal"
 	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/services"
 	"cn.sockstack/smser/tools"
@@ -13,7 +12,7 @@ import (
 
 func Consumer() {
 	config := nsq.NewConfig()
-	consumer, err := nsq.NewConsumer(internal.Cfg.NsqMessageTopic, "message_channel", config)
+	consumer, err := nsq.NewConsumer(Cfg.NsqMessageTopic, "message_channel", config)
 	// Gracefully stop the consumer.
 	defer consumer.Stop()
 	if err != nil {
@@ -27,7 +26,7 @@ func Consumer() {
 
 	// Use nsqlookupd to discover nsqd instances.
 	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
-	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", internal.Cfg.NsqConsumerHost, internal.Cfg.NsqConsumerPort))
+	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", Cfg.NsqConsumerHost, Cfg.NsqConsumerPort))
 	if err != nil {
 		tools.WorkerLogger().Error(err)
 	}
@@ -70,6 +69,6 @@ func processMessage(body []byte) error {
 	fmt.Println(string(body))
 	fmt.Println(queueEntry)
 
-	service.SetAccessTokenAndSecret(internal.Cfg.AccessToken, internal.Cfg.Secret).SetTextMessage(*messageEntry).Send()
+	service.SetAccessTokenAndSecret(Cfg.AccessToken, Cfg.Secret).SetTextMessage(*messageEntry).Send()
 	return nil
 }
