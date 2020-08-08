@@ -100,9 +100,7 @@ func (this *DingTalkService) SetAccessTokenAndSecret(accessToken, secret string)
 func (this *DingTalkService) SetTextMessage(messageEntry entry.DingTalkTextMessageEntry) *DingTalkService {
 	mobiles := message.Mobiles{
 		AtMobiles: messageEntry.AtMobiles,
-	}
-	if len(messageEntry.AtMobiles) != 0 {
-		mobiles.IsAtAll = true
+		IsAtAll: false,
 	}
 
 	this.message = message.NewTextMessage(message.WithText(message.Text{Content: messageEntry.Message}), message.WithMobiles(mobiles))
