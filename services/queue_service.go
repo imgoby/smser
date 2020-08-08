@@ -3,7 +3,6 @@ package services
 import (
 	"cn.sockstack/smser/entry"
 	"cn.sockstack/smser/internal"
-	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/tools"
 	"encoding/json"
 	"fmt"
@@ -36,14 +35,12 @@ func (this *QueueService) Push(queueEntry entry.QueueEntry) {
 		// Messages can also be sent asynchronously and/or in batches.
 		err = p.Publish(topicName, messageBody)
 		if err != nil {
-			queueEntry.Status = entry.RetryStatus
-			model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
+			tools.RetryRecord(queueEntry)
 			return
 		}
 
-		queueEntry.Status = entry.SendSuccessStatus
-		model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
 		// Gracefully stop the producer.
+		tools.QueueSuccessRecord(queueEntry)
 		p.Stop()
 	}()
 }

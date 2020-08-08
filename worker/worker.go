@@ -3,7 +3,6 @@ package worker
 import (
 	"cn.sockstack/smser/entry"
 	"cn.sockstack/smser/internal"
-	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/services"
 	"cn.sockstack/smser/tools"
 	"context"
@@ -149,17 +148,18 @@ func processMessage(body []byte) error {
 	queueService := services.NewQueueService()
 	queueEntry, err := queueService.Decode(body)
 	if err != nil {
-		queueEntry.Status = entry.RetryStatus
-		model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
 		return err
 	}
 
+	return Send(queueEntry)
+}
+
+func Send(queueEntry entry.QueueEntry) (err error) {
 	switch queueEntry.Type {
 	case entry.DingTalkTextMessage:
 		err = SendDingTalkTextMessage(queueEntry)
 		break
 	default:
 	}
-
-	return err
+	return
 }

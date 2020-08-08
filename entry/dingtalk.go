@@ -24,6 +24,7 @@ func NewDingTalkEntry(accessToken string, secret string) *DingTalkEntry {
 type DingTalkTextMessageEntry struct {
 	Message string `form:"message" binding:"required" json:"message"`
 	AtMobiles []string `form:"at_mobiles" json:"at_mobiles"`
+	MessageId bson.ObjectId `json:"message_id"`
 }
 
 func (d *DingTalkTextMessageEntry) Decode(bytes []byte) error {

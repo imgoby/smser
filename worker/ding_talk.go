@@ -2,7 +2,6 @@ package worker
 
 import (
 	"cn.sockstack/smser/entry"
-	"cn.sockstack/smser/internal/model"
 	"cn.sockstack/smser/services"
 	"cn.sockstack/smser/tools"
 	"errors"
@@ -13,9 +12,12 @@ func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
 		return nil
 	}
 	service := services.NewDingTalkService()
+	service.MessageID = queueEntry.ID
 
 	messageEntry := entry.NewDingTalkTextMessageEntry()
 	messageEntry.Decode([]byte(queueEntry.Payload))
+
+
 	dingTalkEntry, err := service.GetAccessTokenAndSecret()
 	if err != nil {
 		tools.Logger().Error(err)
@@ -28,8 +30,7 @@ func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
 
 	err = service.SetAccessTokenAndSecret(dingTalkEntry.AccessToken, dingTalkEntry.Secret).SetTextMessage(*messageEntry).Send()
 	if err != nil {
-		queueEntry.Status = entry.RetryStatus
-		model.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
+		tools.RetryRecord(queueEntry)
 		return err
 	}
 	return nil

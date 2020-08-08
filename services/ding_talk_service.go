@@ -2,7 +2,7 @@ package services
 
 import (
 	"cn.sockstack/smser/entry"
-	"cn.sockstack/smser/internal/model"
+	"cn.sockstack/smser/internal"
 	"cn.sockstack/smser/tools"
 	"encoding/json"
 	"github.com/sockstack/dtrobot"
@@ -12,13 +12,14 @@ import (
 )
 
 var (
-	dingtalk = model.GetMgoDB()
+	dingtalk = internal.GetMgoDB()
 )
 
 type DingTalkService struct {
 	AccessToken string
-	Secret string
-	message message.Message
+	Secret      string
+	message     message.Message
+	MessageID 	bson.ObjectId
 }
 
 func NewDingTalkService() *DingTalkService {
@@ -37,6 +38,8 @@ func (this *DingTalkService) Send () error {
 		tools.MessageLogger(err, nil)
 		return err
 	}
+
+	tools.QueueAckRecordByMessageID(this.MessageID)
 
 	message, _ := json.Marshal(this.message)
 	tools.MessageLogger(string(message), response)
