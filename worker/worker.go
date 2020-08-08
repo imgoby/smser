@@ -49,6 +49,8 @@ func (this *worker) Start ()  {
 }
 
 func (this *worker) Restart ()  {
+	this.m.Lock()
+	defer this.m.Unlock()
 	tools.WorkerLogger().Info("worker restarting")
 	this.q <- true
 	this.w.Wait()
