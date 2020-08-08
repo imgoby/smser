@@ -8,7 +8,7 @@ import (
 )
 
 func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
-	if queueEntry.Status == entry.SendSuccessStatus {
+	if queueEntry.Status == entry.AckStatus {
 		return nil
 	}
 	service := services.NewDingTalkService()

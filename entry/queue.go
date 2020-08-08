@@ -16,13 +16,13 @@ const (
 
 type QueueEntry struct {
 	ID bson.ObjectId `bson:"_id,omitempty"`
-	Type int `bson:"type,omitempty"`
-	Payload string `bson:"payload,omitempty"`
-	Status int `bson:"status,omitempty"`
-	RetryNum int `bson:"retry_num,omitempty"`
-	RetryAt int64 `bson:"retry_at,omitempty"`
-	CreatedAt int64 `bson:"created_at,omitempty"`
-	UpdatedAt int64 `bson:"updated_at,omitempty"`
+	Type int `bson:"type"`
+	Payload string `bson:"payload"`
+	Status int `bson:"status"`
+	RetryNum int `bson:"retry_num"`
+	RetryAt int64 `bson:"retry_at"`
+	CreatedAt int64 `bson:"created_at"`
+	UpdatedAt int64 `bson:"updated_at"`
 	DeletedAt int64 `bson:"deleted_at,omitempty"`
 }
 
