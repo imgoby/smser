@@ -42,18 +42,25 @@ func (this *DingTalkService) Send ()  {
 }
 
 //StoreAccessTokenAndSecret 持久化 DingTalk 配置
-func (this *DingTalkService) StoreAccessTokenAndSecret (entry entry.DingTalkEntry) error {
-	collection := dingtalk.C(entry.TableName())
+func (this *DingTalkService) StoreAccessTokenAndSecret (dingTalkEntry entry.DingTalkEntry) error {
+	collection := dingtalk.C(dingTalkEntry.TableName())
 	count, err := collection.Find(nil).Count()
 	if err != nil {
 		return err
 	}
 
 	if count > 0  {
-		return nil
+		talkEntry := entry.DingTalkEntry{}
+		err := collection.Find(nil).One(&talkEntry)
+		tools.Logger().Info(talkEntry)
+		if err != nil {
+			return err
+		}
+		return collection.UpdateId(talkEntry.ID, dingTalkEntry)
 	}
 
-	return collection.Insert(entry)
+
+	return collection.Insert(dingTalkEntry)
 }
 
 func (this *DingTalkService) GetAccessTokenAndSecret() (entry.DingTalkEntry, error) {

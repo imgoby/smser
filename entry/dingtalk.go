@@ -7,9 +7,9 @@ import (
 
 //DingTalkEntry DingTalk 实体
 type DingTalkEntry struct {
-	ID bson.ObjectId `bson:"_id,omitempty" json:"id"`
-	AccessToken string `bson:"access_token" json:"access_token"`
-	Secret string `bson:"secret" json:"secret"`
+	ID bson.ObjectId `form:"id" bson:"_id,omitempty" json:"id,omitempty"`
+	AccessToken string `form:"access_token" bson:"access_token" json:"access_token" binding:"required"`
+	Secret string `form:"secret" bson:"secret" json:"secret" binding:"required"`
 }
 
 func (d DingTalkEntry) TableName() string {

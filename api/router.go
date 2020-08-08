@@ -26,6 +26,6 @@ func OpenApiV1(r *gin.Engine)  {
 func BackendApiV1(r *gin.Engine)  {
 	g := r.Group("/api/backend/v1")
 	dingtalk := g.Group("/dingtalk")
-	dingtalk.POST("/store", v1.StoreDingTalkSecretAndAccessToken)
+	dingtalk.POST("/", v1.StoreDingTalkSecretAndAccessToken)
 	dingtalk.GET("/", v1.GetTalkSecretAndAccessToken)
 }
