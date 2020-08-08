@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const sourceFrom = "smser"
+var sourceFrom = internal.Cfg.AppName
 
 func RequestLogger(data interface{}) {
 	log := entry.NewRequestLogEntry(time.Now(), sourceFrom, nil, data)

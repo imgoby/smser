@@ -24,6 +24,10 @@ func NewSmser() *Smser {
 }
 
 func (this *Smser) Run()  {
+	if Cfg.Mode != "development" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	this.r.Use(this.middlewares...)
 	for _, o := range this.routes {
 		o(this.r)
