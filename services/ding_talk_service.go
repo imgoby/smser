@@ -93,13 +93,15 @@ func (this *DingTalkService) GetAccessTokenAndSecret() (entry.DingTalkEntry, err
 }
 
 func (this *DingTalkService) StoreDingTalkTextMessage (messageEntry entry.DingTalkTextMessageEntry, callback func(entry entry.QueueEntry)) error {
+	id := bson.NewObjectId()
+	messageEntry.MessageId = id
 	payload, err := messageEntry.Encode()
 	if err != nil {
 		return err
 	}
 	now := time.Now().Unix()
 	queueEntry := entry.NewQueueEntry()
-	queueEntry.ID = bson.NewObjectId()
+	queueEntry.ID = id
 	queueEntry.Type = entry.DingTalkTextMessage
 	queueEntry.RetryNum = entry.RetryNum
 	queueEntry.CreatedAt = now
