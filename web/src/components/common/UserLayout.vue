@@ -1,12 +1,13 @@
 <template>
-  <router-view/>
+  <router-view></router-view>
 </template>
 
 <script>
 export default {
-  name: "app",
+name: "UserLayout"
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
+
 </style>

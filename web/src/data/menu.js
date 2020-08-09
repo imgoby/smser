@@ -7,7 +7,7 @@ export default [
             {
                 menu: "数据中心",
                 icon: "",
-                url: "/index",
+                url: "/",
             },
         ]
     },

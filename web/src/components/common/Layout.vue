@@ -5,7 +5,7 @@
             <Header :breadcrumb="this.breadcrumb"/>
             <el-main>
                 <div class="content">
-                    <slot name="body"></slot>
+                  <router-view></router-view>
                 </div>
             </el-main>
             <Footer/>

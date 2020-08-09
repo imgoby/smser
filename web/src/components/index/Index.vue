@@ -1,5 +1,5 @@
 <template>
-    <div slot="body">
+    <div>
         首页
     </div>
 </template>
