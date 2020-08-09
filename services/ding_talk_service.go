@@ -53,9 +53,8 @@ func (this *DingTalkService) Send () error {
 	message, _ := json.Marshal(this.message)
 	go tools.MessageLogger(string(message), response)
 
-	status, ok := response["status"]
-	status = fmt.Sprintf("%v", status)
-	if status != "" && ok {
+	status := response["status"]
+	if status != nil {
 		return errors.New("发送失败")
 	}
 
