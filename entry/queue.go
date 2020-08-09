@@ -16,14 +16,17 @@ const (
 
 type QueueEntry struct {
 	ID bson.ObjectId `bson:"_id,omitempty"`
-	Type int `bson:"type"`
-	Payload string `bson:"payload"`
-	Status int `bson:"status"`
-	RetryNum int `bson:"retry_num"`
-	RetryAt int64 `bson:"retry_at"`
-	CreatedAt int64 `bson:"created_at"`
-	UpdatedAt int64 `bson:"updated_at"`
+	Type int `bson:"type" json:"type"`
+	Payload string `bson:"payload" json:"payload"`
+	Status int `bson:"status" json:"status"`
+	RetryNum int `bson:"retry_num" json:"retry_num"`
+	RetryAt int64 `bson:"retry_at" json:"retry_at"`
+	CreatedAt int64 `bson:"created_at" json:"created_at"`
+	UpdatedAt int64 `bson:"updated_at" json:"updated_at"`
 	DeletedAt int64 `bson:"deleted_at,omitempty"`
+
+	Page int `form:"page" json:"page,omitempty"`
+	Size int `form:"size" json:"size,omitempty"`
 }
 
 func NewQueueEntry() *QueueEntry {

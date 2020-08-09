@@ -29,9 +29,9 @@ func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
 	}
 
 	err = service.SetAccessTokenAndSecret(dingTalkEntry.AccessToken, dingTalkEntry.Secret).SetTextMessage(*messageEntry).Send()
+	tools.Logger().Error(err)
 	if err != nil {
 		tools.RetryRecord(queueEntry)
-		return err
 	}
 	return nil
 }

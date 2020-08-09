@@ -33,6 +33,6 @@ func check()  {
 	}
 
 	for _, q := range message{
-		go Send(q)
+		Send(q)
 	}
 }

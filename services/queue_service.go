@@ -56,6 +56,18 @@ func (this *QueueService) Decode (data []byte) (entry.QueueEntry, error) {
 	return *queueEntry, err
 }
 
+func (this *QueueService) MessageList (queueEntry entry.QueueEntry) (messages []entry.QueueEntry, err error) {
+	if queueEntry.Page > 0 {
+		queueEntry.Page--
+	}
+	if queueEntry.Size <= 0 {
+		queueEntry.Size = 10
+	}
+
+	err = internal.GetMgoDB().C(queueEntry.TableName()).Find(nil).Sort("-created_at").Skip(queueEntry.Size * queueEntry.Page).Limit(queueEntry.Size).All(&messages)
+	return messages, err
+}
+
 func NewQueueService() *QueueService {
 	return &QueueService{}
 }

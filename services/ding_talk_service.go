@@ -5,8 +5,11 @@ import (
 	"cn.sockstack/smser/internal"
 	"cn.sockstack/smser/tools"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/sockstack/dtrobot"
 	"github.com/sockstack/dtrobot/message"
+	"github.com/sockstack/dtrobot/pkg/encode"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -29,20 +32,35 @@ func NewDingTalkService() *DingTalkService {
 func (this *DingTalkService) Send () error {
 	robot, err := dtrobot.NewRobot(this.AccessToken, dtrobot.WithSecret(this.Secret))
 	if err != nil {
-		tools.MessageLogger(err, nil)
+		go tools.MessageLogger(err, nil)
+		return err
 	}
 
 	response, err := robot.Send(this.message)
 
 	if err != nil {
-		tools.MessageLogger(err, nil)
+		go tools.MessageLogger(err, nil)
 		return err
+	}
+
+	errcode, ok := response["errcode"]
+	errcode = fmt.Sprintf("%v", errcode)
+	if errcode != "0" && ok {
+		robot.Options.Sign = encode.CalcSign(time.Now().Unix() * 1000, robot.Options.Secret)
+		return this.Send()
+	}
+
+	message, _ := json.Marshal(this.message)
+	go tools.MessageLogger(string(message), response)
+
+	status, ok := response["status"]
+	status = fmt.Sprintf("%v", status)
+	if status != "" && ok {
+		return errors.New("发送失败")
 	}
 
 	tools.QueueAckRecordByMessageID(this.MessageID)
 
-	message, _ := json.Marshal(this.message)
-	tools.MessageLogger(string(message), response)
 	return nil
 }
 

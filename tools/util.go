@@ -5,7 +5,6 @@ import (
 	"cn.sockstack/smser/internal"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
-	"math"
 	"time"
 )
 
@@ -31,11 +30,11 @@ func Logger() *logrus.Logger {
 }
 
 func generateRetryAt(num int) int64 {
-	return time.Now().Unix() + int64(math.Sqrt(float64(num * 2)))
+	return time.Now().Unix() + int64(num * 60)
 }
 
 func RetryRecord(queueEntry entry.QueueEntry)  {
-	if queueEntry.RetryNum <= 5 {
+	if queueEntry.RetryNum < 5 {
 		queueEntry.Status = entry.RetryStatus
 		queueEntry.RetryNum++
 		queueEntry.RetryAt = generateRetryAt(queueEntry.RetryNum)
@@ -44,6 +43,7 @@ func RetryRecord(queueEntry entry.QueueEntry)  {
 	}
 	internal.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
 }
+
 func QueueAckRecordByMessageID(id bson.ObjectId)  {
 	queueEntry := entry.NewQueueEntry()
 	err := internal.GetMgoDB().C(queueEntry.TableName()).FindId(id).One(&queueEntry)
@@ -54,7 +54,10 @@ func QueueAckRecordByMessageID(id bson.ObjectId)  {
 
 	queueEntry.Status = entry.AckStatus
 	err = internal.GetMgoDB().C(queueEntry.TableName()).UpdateId(queueEntry.ID, queueEntry)
-	Logger().Info(err)
+	if err != nil {
+		Logger().Info(err)
+		return
+	}
 }
 
 func QueueSuccessRecord(queueEntry entry.QueueEntry)  {

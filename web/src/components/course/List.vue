@@ -1,5 +1,5 @@
 <template>
-    <div slot="body">
+    <div>
         <el-form :inline="true" class="demo-form-inline">
             <el-form-item>
                 <el-input placeholder="审批人" size="small"></el-input>
