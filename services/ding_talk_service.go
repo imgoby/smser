@@ -5,7 +5,6 @@ import (
 	"cn.sockstack/smser/internal"
 	"cn.sockstack/smser/tools"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/sockstack/dtrobot"
 	"github.com/sockstack/dtrobot/message"
@@ -33,14 +32,14 @@ func (this *DingTalkService) Send () error {
 	robot, err := dtrobot.NewRobot(this.AccessToken, dtrobot.WithSecret(this.Secret))
 	if err != nil {
 		go tools.MessageLogger(err, nil)
-		return err
+		return nil
 	}
 
 	response, err := robot.Send(this.message)
 
 	if err != nil {
 		go tools.MessageLogger(err, nil)
-		return err
+		return nil
 	}
 
 	errcode, ok := response["errcode"]
@@ -55,7 +54,8 @@ func (this *DingTalkService) Send () error {
 
 	status := response["status"]
 	if status != nil {
-		return errors.New("发送失败")
+		//return errors.New("发送失败")
+		return nil
 	}
 
 	tools.QueueAckRecordByMessageID(this.MessageID)

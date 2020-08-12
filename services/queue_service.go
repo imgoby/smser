@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nsqio/go-nsq"
-	"time"
 )
 
 type QueueService struct {
@@ -35,7 +34,6 @@ func (this *QueueService) Push(queueEntry entry.QueueEntry) {
 		// Synchronously publish a single message to the specified topic.
 		// Messages can also be sent asynchronously and/or in batches.
 		err = p.Publish(topicName, messageBody)
-		p.DeferredPublish("test", time.Second * 10, messageBody)
 		if err != nil {
 			tools.RetryRecord(queueEntry)
 			return
@@ -43,7 +41,7 @@ func (this *QueueService) Push(queueEntry entry.QueueEntry) {
 
 		// Gracefully stop the producer.
 		tools.QueueSuccessRecord(queueEntry)
-		p.Stop()
+		//p.Stop()
 	}()
 }
 

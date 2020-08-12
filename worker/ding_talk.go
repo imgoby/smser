@@ -24,12 +24,12 @@ func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
 	}
 
 	if dingTalkEntry.AccessToken == "" {
-		tools.Logger().Error("access_token 为空")
+		//tools.Logger().Error("access_token 为空")
 		return errors.New("access_token 为空")
 	}
 
 	err = service.SetAccessTokenAndSecret(dingTalkEntry.AccessToken, dingTalkEntry.Secret).SetTextMessage(*messageEntry).Send()
-	tools.Logger().Error(err)
+	//tools.Logger().Error(err)
 	if err != nil {
 		tools.RetryRecord(queueEntry)
 	}
