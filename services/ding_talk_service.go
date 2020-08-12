@@ -31,10 +31,6 @@ func NewDingTalkService() *DingTalkService {
 
 func (this *DingTalkService) Send () error {
 	robot, err := dtrobot.NewRobot(this.AccessToken, dtrobot.WithSecret(this.Secret))
-	robot.Options.AccessToken = this.AccessToken
-	robot.Options.Secret = this.Secret
-	robot.Options.Timestamp = time.Now().Unix() * 1000
-	fmt.Println(robot.Options.AccessToken, robot.Options.Secret, robot.Options.Timestamp)
 	if err != nil {
 		go tools.MessageLogger(err, nil)
 		return err

@@ -15,7 +15,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/goconvey v1.6.4 // indirect
-	github.com/sockstack/dtrobot v0.0.0-20200807035317-2289a64e135d
+	github.com/sockstack/dtrobot v0.0.1
 	github.com/weekface/mgorus v0.0.0-20181029072001-239539fe10e4
 	golang.org/x/sys v0.0.0-20200806125547-5acd03effb82 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
