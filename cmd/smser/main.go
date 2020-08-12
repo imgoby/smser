@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
-	go worker.Worker.Run()
-	internal.NewSmser().Route(api.R).Use(middlewares.RequestLog()).Run()
+	internal.NewSmser().Route(api.R).Use(middlewares.RequestLog()).Run(func(app *internal.Smser) {
+		go worker.Worker.Run()
+		go worker.Retry()
+	})
 }

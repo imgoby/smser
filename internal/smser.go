@@ -23,7 +23,7 @@ func NewSmser() *Smser {
 	}
 }
 
-func (this *Smser) Run()  {
+func (this *Smser) Run(f func(app *Smser))  {
 	if Cfg.Mode != "development" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -32,7 +32,7 @@ func (this *Smser) Run()  {
 	for _, o := range this.routes {
 		o(this.r)
 	}
-
+	f(this)
 	s := &http.Server{
 		Addr:           fmt.Sprintf("%s:%s", Cfg.Host, Cfg.Port),
 		Handler:        this.r,

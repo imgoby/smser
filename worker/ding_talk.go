@@ -28,9 +28,6 @@ func SendDingTalkTextMessage(queueEntry entry.QueueEntry) error {
 		return errors.New("access_token 为空")
 	}
 
-	tools.Logger().Info(dingTalkEntry.AccessToken)
-	tools.Logger().Info(dingTalkEntry.Secret)
-
 	err = service.SetAccessTokenAndSecret(dingTalkEntry.AccessToken, dingTalkEntry.Secret).SetTextMessage(*messageEntry).Send()
 	tools.Logger().Error(err)
 	if err != nil {
