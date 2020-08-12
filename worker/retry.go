@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"time"
 )
 
@@ -16,6 +17,7 @@ func Retry()  {
 		fmt.Println(err)
 	}
 	c.Start()
+	log.Print("retry worker is started!")
 
 	for true {
 		time.Sleep(time.Second)
