@@ -25,8 +25,8 @@ type QueueEntry struct {
 	UpdatedAt int64 `bson:"updated_at" json:"updated_at"`
 	DeletedAt int64 `bson:"deleted_at,omitempty"`
 
-	Page int `form:"page" json:"page,omitempty"`
-	Size int `form:"size" json:"size,omitempty"`
+	Page int `form:"page" json:"page,omitempty" bson:"-"`
+	Size int `form:"size" json:"size,omitempty" bson:"-"`
 }
 
 func NewQueueEntry() *QueueEntry {
